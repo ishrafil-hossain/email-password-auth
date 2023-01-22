@@ -2,14 +2,13 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Link } from 'react-router-dom';
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, updateProfile } from 'firebase/auth';
 import { app } from '../../firebase/firebase.init';
 import { useState } from 'react';
 
 const auth = getAuth(app)
 
 const Register = () => {
-    const [users, setUsers] = useState();
     const [error, setError] = useState('');
     const [success, setsSuccess] = useState(false);
     const [loader, setLoader] = useState(false)
@@ -19,6 +18,7 @@ const Register = () => {
         setsSuccess(false)
         event.preventDefault()
         const form = event.target;
+        const name = form.name.value;
         const email = form.email.value;
         const password = form.password.value
         if (!/(?=.*[0-9])/.test(password)) {
@@ -34,13 +34,13 @@ const Register = () => {
         // console.log(email, password)
         createUserWithEmailAndPassword(auth, email, password)
             .then(result => {
-                const user = result.user;
-                // console.log(user)
-                setUsers(user.email)
+                console.log(result.user)
+                updateUserName(name)
                 setsSuccess(true)
                 form.reset()
                 setLoader(false)
                 emailVarified()
+                
 
             })
             .catch(error => {
@@ -50,11 +50,23 @@ const Register = () => {
     }
 
     // Send a user a verification email 
-    const emailVarified = () =>{
+    const emailVarified = () => {
         sendEmailVerification(auth.currentUser)
-        .then(()=> {
-            alert('sent varification email. Please check email')
+            .then(() => {
+                alert('sent varification email. Please check email')
+            })
+    }
+
+    const updateUserName = name => {
+        updateProfile(auth.currentUser, {
+            displayName: name
         })
+            .then(() => {
+                console.log('Thnak you', name)
+            })
+            .catch(error => {
+                setError(error.message)
+            })
     }
 
     return (
@@ -62,6 +74,10 @@ const Register = () => {
             <div>
                 <h3>Please Register</h3>
                 <Form onSubmit={handleRegister}>
+                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                        <Form.Control type="text" name="name" placeholder="Enter Your Name" />
+                    </Form.Group>
+
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Control type="email" name="email" placeholder="Enter email" />
                     </Form.Group>

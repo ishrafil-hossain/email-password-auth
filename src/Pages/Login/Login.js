@@ -20,6 +20,8 @@ const Login = () => {
         const email = form.email.value;
         const password = form.password.value;
         setVarified(false)
+        setPasswordError('')
+        setUsers('')
         // console.log(email, password)
         signInWithEmailAndPassword(auth, email, password)
             .then(result => {
@@ -31,7 +33,7 @@ const Login = () => {
                     form.reset()
                     return
                 }
-                setUsers(result.user.email)
+                setUsers(result.user)
                 form.reset()
             })
             .catch(error => {
@@ -79,7 +81,8 @@ const Login = () => {
                     <Form.Control type="password" name="password" placeholder="Password" />
                 </Form.Group>
                 <p className='text-danger'>{passwordError}</p>
-                <p className='text-primary'>{users}</p>
+                <p className='text-primary'>{users.displayName}</p>
+                <p className='text-primary'>{users.email}</p>
                 {varified && <p className='text-danger'>E-mail isn't varified <Link onClick={emailVarified}>Please verify</Link>
                 </p>}
 
